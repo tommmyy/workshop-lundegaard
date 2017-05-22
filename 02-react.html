@@ -1,0 +1,603 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>React</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/moon.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/github.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>React</h1>
+                    <p>Tomáš Konrády</p>
+                </section>
+                <section>
+                    <h2>React</h2>
+                    <ul>
+                        <li>Knihovna pro tvorbu UI</li>
+                        <li>Deklarativní</li>
+                        <li>Pouze JavaScript</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>Změna myšlení</li>
+                        </ul>
+                    </aside>
+                </section>
+                <section>
+                    <h2>Hello World!</h2>
+                    <pre><code class="hljs js">import React from 'react';
+import ReactDOM from 'react-dom';
+
+class App extends React.Component {
+    render() {
+        return &lt;h1 className="heading"&gt;Hello world!&lt;/h1&gt;;
+    }
+}
+
+ReactDOM.render(
+    &lt;App /&gt;,
+    document.getElementById('root')
+);</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li>Balíčky</li>
+                            <li>Popis komponenty - React.Component, render</li>
+                            <li>JSX</li>
+                            <li>ReactDOM.render - vyrendruje veškeré HTML</li>
+                        </ul>
+                    </aside>
+                </section>
+                <section>
+                    <ul>
+                        <li>Renderuje celou aplikaci včetně HTML</li>
+                        <li>Dvě knihovny: react &amp; react-dom</li>
+                        <li>JSX</li>
+                    </ul>
+                </section>
+                <section>
+                    <h1>JSX</h1>
+                </section>
+                <section>
+                    <h2>Hello World! bez JSX</h2>
+                    <pre><code class="hljs js">import React from 'react';
+import ReactDOM from 'react-dom';
+
+class App extends React.Component {
+    render() {
+        return React.createElement( // &lt;--
+            'h1', // type
+            { className: 'heading' }, // input state
+            'Hello world!' // children
+        );
+    }
+}
+
+ReactDOM.render(
+    React.createElement(App), // &lt;--
+    document.getElementById('root')
+);</code></pre>
+                </section>
+                <section>
+                    <h2>Odlišnosti od syntax HTML</h2>
+                    <section>
+                        <h3>Názvy některých atributů</h3>
+                        <pre><code class="hljs html">&lt;label htmlFor="name"&gt;Name:&lt;/label>
+
+&lt;input className="control" name="name" id="name" /&gt;
+</code></pre>
+                    </section>
+                    <section>
+                        <h3>Nepárové tagy</h3>
+                        <pre><code class="hljs html">&lt;div /&gt;
+
+&lt;br&gt;&lt;/br&gt;
+</code></pre>
+                    </section>
+                    <section>
+                        <h3>Booleovské properties</h3>
+                        <pre><code class="hljs html">&lt;input disabled={true} name="text" /&gt;
+&lt;input disabled={false} name="age" /&gt;</code></pre>
+                        <p>Ekvivalentní k:</p>
+                        <pre><code class="hljs html">&lt;input disabled name="text" /&gt;
+&lt;input name="age" /&gt;</code></pre>
+                    </section>
+                    <section>
+                        <h3>JS Expressions</h3>
+                        <pre><code class="hljs html">&lt;div style={{ color: 'red' }}&gt;Red Bread&lt;/div&gt;
+
+&lt;div id={x * 666}&gt;Devil's modulo&lt;/div&gt;
+
+&lt;ul&gt;
+    {items.map((item) =&gt; &lt;li key={item.id}&gt;{item.text}&lt;/li&gt;)}
+&lt;/ul&gt;</code></pre>
+
+                        <p>Ve složených závorkách</p>
+                    </section>
+                    <section>
+                        <h3>Použití vlastních komponent</h3>
+                        <pre><code class="hljs html">&lt;div className="App"&gt;
+    &lt;AppNavigation /&gt;
+    &lt;AppContent /&gt;
+    &lt;AppFooter /&gt;
+&lt;/div&gt;</code></pre>
+                        <p>Názvy musí začínat velkým písmenem</p>
+                    </section>
+                    <section>
+                        <h2><a href="https://facebook.github.io/react/docs/jsx-in-depth.html">Další...</a></h2>
+                    </section>
+                </section>
+                <section>
+                    <ul>
+                        <li>Rozšíření syntaxe JS</li>
+                        <li>Prakticky stejná syntax jako HTML až na výjimky</li>
+                        <li>Podpora v <a href="http://babeljs.io/" target="_blank">BabelJS</a></li>
+                    </ul>
+                </section>
+                <section>
+                    <h1>Virtuální DOM</h1>
+                </section>
+                <section>
+                    <h2>Ukázka 1: Timer</h2>
+                    <ul>
+                        <li>Chrome - co se rerenderuje?</li>
+                        <li>Chrome - React panel</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>DOM</h2>
+                    <ul>
+                        <li>Abstrakce strukturovaného textu</li>
+                        <li>HTML, SVG, XML, ...</li>
+                        <li>Poskytuje API pro manipulaci a selekci</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>DOM - nevýhody</h2>
+                    <ul>
+                        <li>Performance</li>
+                        <li>Kompatibilita</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Virtuální DOM</h2>
+                    <ul>
+                        <li>Abstrakce nad DOM</li>
+                        <li>Pouze jednoduchá reprezentace</li>
+                        <li>Pro React dobře využitelný díky deklarativnímu API</li>
+                        <li>React porovnává VDOM -> minimální změny v DOM</li>
+                    </ul>
+                </section>
+                <section>
+                    <h1>Stateless komponenta</h1>
+                </section>
+                <section>
+                    <h2>Vstupní stav</h2>
+                    <section>
+                        <h3>Třída</h3>
+                        <pre><code class="hljs js">class Section extends React.Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;{this.props.heading}&lt;/h1&gt;
+        &lt;p&gt;{this.props.children}&lt;/p&gt;
+      &lt;/div&gt;
+    );
+  }
+}</code></pre>
+                    </section>
+                    <section>
+                        <h3>Funkce</h3>
+                        <pre><code class="hljs js">const Section = (props) => {
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;{props.heading}&lt;/h1&gt;
+        &lt;p&gt;{props.children}&lt;/p&gt;
+      &lt;/div&gt;
+    );
+}</code></pre>
+                    </section>
+                    <section>
+                        <h3>Funkce + destrukturalizace</h3>
+                        <pre><code class="hljs js">const Section = ({ heading, children }) => (
+  &lt;div&gt;
+    &lt;h1&gt;{heading}&lt;/h1&gt;
+    &lt;p&gt;{children}&lt;/p&gt;
+  &lt;/div&gt;
+);</code></pre>
+                    </section>
+                    <section>
+                        <h3>Použití</h3>
+                        <pre><code class="hljs js">import Section from '../Section'
+class App extends React.Component {
+  render() {
+    return (
+      &lt;Section heading="Peanut Butter"&gt;
+        &lt;Section heading="Description"&gt;I love peanut butter.&lt;/Section&gt;
+        &lt;Section heading="Photos"&gt;
+          &lt;img src="/images/me-and-peanut-butter.jpg" /&gt;
+          &lt;img src="/images/cat-licks-peanut-butter.jpg" /&gt;
+        &lt;/Section&gt;
+      &lt;/Section&gt;
+    );
+   }
+}</code></pre>
+                    </section>
+                </section>
+                <section>
+                    <ul>
+                        <li>Vstupní stav reprezentovaný objektem <code>props</code></li>
+                        <li><code>props.children</code> - komponenty uvnitř komponenty</li>
+                        <li>Re-render komponenty způsobí pouze změna vstupního stavu</li>
+                        <li>Někdy možné použít funkci místo třídy</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>PropTypes</h2>
+                    <section>
+                        <pre><code class="hljs js">import React from 'react';
+import PropTypes from 'prop-types';
+
+// ...
+
+Programmer.propTypes = {
+    /** His name */
+    name: PropTypes.string,
+    /** His surname */
+    surname: PropTypes.string.isRequired,
+    /** His salary in EUR */
+    salary: PropTypes.number,
+    /** If `true`, salary is increased by 20% */
+    knowsReact: PropTypes.bool, // !!! not `boolean`
+    /** Called when changed */
+    onChange: PropTypes.func, // !!! not `function`,
+    /** Keywords will be shown at the end */
+    tags: PropTypes.arrayOf(PropTypes.string),
+    /** Support for custom content */
+    children: PropTypes.node,
+    /** Meta information */
+    meta: PropTypes.shape({
+        created: PropTypes.object,
+        text: PropTypes.any,
+    }),
+};</code></pre>
+                    </section>
+                    <section>
+                      <h3>Ukázka 2: Chyba v PropTypes</h3>
+                    </section>
+                    <section>
+                      <ul>
+                          <li>Slouží k validaci vstupního stavu</li>
+                          <li>Vždy píšeme - slouží jako dokumentace</li>
+                          <li>Uvádíme i `children` pokud podporujeme</li>
+                          <li>V produkci je validace vypnuta</li>
+                      </ul>
+                    </section>
+                </section>
+                <section>
+                    <h2>Výchozí vstupní stav</h2>
+                        <pre><code class="hljs js">Programmer.defaultProps = {
+    knowsReact: true,
+};</code></pre>
+                </section>
+                <section>
+                    <h1>Úkol č.1</h1>
+                    <p>Komponenta jako funkce</p>
+                </section>
+                <section>
+                    <h2>ES/Next <code>static</code>cké atributy</h2>
+                    <section>
+                      <p>Klasicky v ES6</p>
+                      <pre><code class="hljs js">import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
+class Programmer extends Component {
+  render() {
+    const {
+      name,
+      surname,
+      knowsReact,
+    } = this.props;
+    return (
+      &lt;div&gt;
+        {`${name} ${surname}`}
+        { knowsReact ? '&#9829;' : ''}
+      &lt;/div&gt;
+    );
+  }
+}
+
+Programmer.propTypes = {
+  name: PropTypes.string.isRequired,
+  surname: PropTypes.string.isRequired,
+  knowsReact: PropTypes.bool,
+}
+
+Programmer.defaultProps = {
+    knowsReact: true,
+};</code></pre>
+                    </section>
+                    <section>
+                      <p>ES/Next</p>
+                      <pre>
+                        <code class="hljs js">import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
+class Programmer extends Component {
+  static propTypes = {
+    name: PropTypes.string.isRequired,
+    surname: PropTypes.string.isRequired,
+    knowsReact: PropTypes.bool,
+  };
+
+  static defaultProps = {
+      knowsReact: true,
+  };
+
+  render() {
+    const {
+      name,
+      surname,
+      knowsReact,
+    } = this.props;
+    return (
+      &lt;div&gt;
+        {`${name} ${surname}`}
+        { knowsReact ? '&#9829;' : ''}
+      &lt;/div&gt;
+    );
+  }
+}
+</code></pre>
+                    </section>
+                    <section>
+                      <p>U funkce nelze</p>
+                      <pre><code class="hljs js">import React from 'react';
+import PropTypes from 'prop-types';
+
+const Programmer = ({
+  name,
+  surname,
+  knowsReact,
+}) => (
+  &lt;div&gt;
+    {`${name} ${surname}`}
+    { knowsReact ? '&#9829;' : ''}
+  &lt;/div&gt;
+);
+
+Programmer.propTypes = {
+  name: PropTypes.string.isRequired,
+  surname: PropTypes.string.isRequired,
+  knowsReact: PropTypes.bool,
+}
+
+Programmer.defaultProps = {
+    knowsReact: true,
+};</code></pre>
+                    </section>
+                </section>
+
+                <section>
+                    <h1>Stateful komponenta</h1>
+                </section>
+                <section>
+                    <h2>Initial state</h2>
+                    <section>
+                        <p>Konstruktor</p>
+                        <pre><code class="hljs js">class MyComponent extends React.Component {
+    constructor(...args) {
+        super(...args);
+
+        // initial state
+        this.state = {
+            counter: 1,
+        };
+    }
+
+    render() {
+        return &lt;span&gt;{this.state.counter}&lt;/span&gt;;
+    }
+}</code></pre>
+                    </section>
+                    <section>
+                        <p>ES/Next class property</p>
+                        <pre><code class="hljs js">class MyComponent extends React.Component {
+    // initial state
+    state = {
+         counter: 1,
+    };
+
+    render() {
+         return &lt;span&gt;{this.state.counter}&lt;/span&gt;;
+    }
+}</code></pre>
+                    </section>
+                </section>
+                <section>
+                  <h2>Změna vnitřního stavu</h2>
+                  <section>
+                    <p><code>this.setState(nextState, callback)</code></p>
+                    <p><pre class="hljs js"><code>this.setState({ isDirty: true })</code></pre></p>
+                    <p class="fragment"><em>„<code>setState()</code> does not immediately mutate <code>this.state</code> but creates a pending state transition.“ </em></p>
+                  </section>
+                  <section>
+                    <pre><code class="hljs js">class MyComponent extends React.Component {
+  state = { counter: 0 };
+
+  handleClick = (/* event */) => {
+    this.setState({ counter: this.state.counter + 1 })
+  }
+
+  render() {
+    // declarative event handler
+    return (
+      &lt;div&gt;
+        {this.state.counter}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+}</code></pre>
+                    <p>Ukázka č.3</p>
+                  </section>
+                  <section>
+                    <h1>Ukázka č.4</h1>
+                    <p>Deep merge</p>
+                  </section>
+                  <section>
+                    <ul>
+                      <li>React používá shallow merge</li>
+                      <li>Pro deep merge používáme:
+                          <ul>
+                            <li>ES6</li>
+                            <li>3rd-parties immutability helpery</li>
+                          </ul>
+                      </li>
+                    </ul>
+                  </section>
+                  <section>
+                    <p><a href="https://github.com/kolodny/immutability-helper" target="_blank">kolodny/immutability-helper (dřive v React-addons)</a></p>
+  <pre><code class="hljs js">import update from 'immutability-helper';
+// ...
+this.setState(update(
+  this.state,
+  {
+    person: { $set: 'Miloš' },
+  }
+));</code></pre>
+                  </section>
+                                    <section>
+                    <p><a href="https://github.com/ramda/ramda" target="_blank">Ramda</a></p>
+  <pre><code class="hljs js">import R from 'ramda';
+const setPerson = R.assocPath(['person']);
+
+// ...
+
+this.setState(
+  setPerson('Miloš', this.state)
+);</code></pre>
+                  </section>
+                </section>
+                <section>
+                  <h2>Životní cyklus</h2>
+                   <pre><code class="hljs js">class MyComponent extends React.Component {
+  componentWillMount() { /* ... */ }
+  componentDidMount() { /* ... */ }
+  componentWillReceiveProps(nextProps) { /* ... */ }
+  componentWillUpdate(nextProps, nextState) { /* ... */ }
+  componentDidUpdate(prevProps, prevState) { /* ... */ }
+  componentWillUnmount() { /* ... */ }
+}</code></pre>
+                </section>
+                <section>
+                  <h1>Úkol č.2</h1>
+                  <aside class="notes">01Result</aside>
+                </section>
+                <section>
+                  <h1>Ukázka č.5</h1>
+                  <p>Balónek</p>
+                </section>
+                <section>
+                  <h1>Úkol č.3</h1>
+                  <p>Balónek - rozšíření</p>
+
+                  <aside class="notes">05Result</aside>
+                </section>
+                <section>
+                  <h1>Formulářové pole</h1>
+                </section>
+                <section>
+                  <h2>HTML vs. React</h2>
+                    <p>HTML:</p>
+                    <pre><code class="hljs html">&lt;input name="email" value="xyz@example.com" /&gt;</code></pre>
+                    <p>Ekvivalent v React</p>
+                    <pre><code class="hljs js">class MyForm extends React.Component {
+  // ...
+  render() {
+    return &lt;input name="email" defaultValue="xyz@example.com" /&gt;
+  }
+}</code></pre>
+                </section>
+                <section>
+                    <h1>Ukázka č.6</h1>
+                    <p>Nekontrolované komponenty</p>
+                </section>
+                <section>
+                  <h2>Nevýhody nekontrolovaných inputů:</h2>
+                  <ul>
+                    <li>Data jsou uchovány pouze v DOM</li>
+                    <li>Není možné reagovat na změnu hodnoty</li>
+                  </ul>
+                </section>
+                <section>
+                    <h1>Ukázka č.7</h1>
+                    <p>Kontrolované komponenty</p>
+                </section>
+                <section>
+                  <figure style="background: white">
+                    <img src="images/controlled-flow.png"  />
+                    <p style="text-align: center">
+                      <a href="https://goshakkk.name/controlled-vs-uncontrolled-inputs-react/">goshakk - Controlled vs Uncontrolled Inputs</a>
+                    </p>
+                  </figure>
+                </section>
+                <section>
+                  <h2>Výhody kontrolovaných inputů:</h2>
+                  <ul>
+                    <li>Instantní validace</li>
+                    <li>Formátování</li>
+                    <li>Kontrolování Disable/Readonly</li>
+                  </ul>
+                </section>
+                  <section>
+                  <ul>
+                    <li><code>value/onChange</code> - jmenná konvence</li>
+                    <li>logika propisování stavu lze refaktorovat a zjednodušit</li>
+                  </ul>
+                </section>
+                <section>
+                  <h1>Ukol č.4</h1>
+                  <p>Seznam uživatelů</p>
+                  <aside class="notes">08Result</aside>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+                ]
+            });
+        </script>
+    </body>
+</html>

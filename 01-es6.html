@@ -1,0 +1,494 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>ECMAScript 2016/Next</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/moon.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/github.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>ECMAScript 6/Next</h1>
+					<p>Tomáš Konrády</p>
+				</section>
+				<section>
+					<ul>
+						<li>Instalace Workshop projektu</li>
+						<li>Vybrané novinky v ECMAScript 6</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Git</h2>
+					<p><a href="https://github.com/tommmyy/workshop-excercises-lundegaard">https://github.com/tommmyy/workshop-excercises-lundegaard</a></p>
+				</section>
+				<section>
+					<h1>ECMAScript 6/2017/Next</h1>
+				</section>
+				<section>
+					<h1>let/const</h1>
+				</section>
+				<section>
+					<h2>var</h2>
+					<section>
+						<pre><code class="hljs js">var arr = [0, 1, 2];
+for (var i = 0; i &lt; arr.length; i++) {
+	// ...
+}
+i; // 2
+</code></pre>
+						<pre class="fragment"><code class="hljs js">// hoisting
+var arr, i;
+arr = [0, 1, 2];
+for (i = 0; i &lt; arr.length; i++) {
+	// ...
+}
+i; // 2
+</code></pre>
+					</section>
+					<section>
+						<h3>immediately invoked function expression</h3>
+						<pre><code class="hljs js">var arr = [0, 1, 2];
+(function() {
+	for (var i = 0; i &lt; arr.length; i++) { /* ... */}
+	i; // 2
+})();
+i; // ReferenceError
+</code></pre>
+						<pre  class="fragment"><code class="hljs js">var arr;
+arr = [0, 1, 2];
+(function() {
+	var i;
+	for (i = 0; i &lt; arr.length; i++) { /* ... */ }
+	i; // 2
+})();
+</code></pre>
+					</section>
+					<section>
+						<ul>
+							<li>Příkaz <code>var</code> deklaruje proměnnou ve scope funkce</li>
+							<li>Pro simulaci blokového scope se v ES 5.1 používají IIFEs</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<h2>let+const</h2>
+					<section>
+						<h3>Deklarace v blokovém scope</h3>
+						<pre><code class="hljs js">const arr = [0, 1, 2];
+for (let i = 0; i &lt; arr.length; i++) {
+	// ...
+}
+i; // ReferenceError
+arr = []; // SyntaxError
+</code></pre>
+					</section>
+				</section>
+				<section>
+					<h2>Shrnutí</h2>
+					<table>
+						<tr>
+							<th></th>
+							<th>Scope</th>
+							<th>Dekrace</th>
+						</tr>
+						<tr>
+							<td><code>var</code></td>
+							<td>Funkce</td>
+							<td>Multi</td>
+						</tr>
+						<tr>
+							<td><code>let</code></td>
+							<td>Blok</td>
+							<td>Multi</td>
+						</tr>
+						<tr>
+							<td><code>const</code></td>
+							<td>Blok</td>
+							<td>Single</td>
+						</tr>
+
+					</table>
+				</section>
+				<section>
+					<h1>Template strings</h1>
+				</section>
+				<section>
+					<h2>Singleline</h2>
+					<section>
+						<h3>ECMAScript &lt;6</h3>
+						<pre><code class="hljs js">var a = 'Field ' + field + 'must be an integer greater than ' + min + '.';</code></pre>
+					</section>
+
+					<section>
+						<h3>ECMAScript 6</h3>
+							<pre><code class="hljs js">const a = `Field ${field} must be an integer greater than ${min}.`</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<h2>Multiline</h2>
+					<section>
+						<h3>ECMAScript &lt;6</h3>
+						<pre><code class="hljs js">var a = 'Field ' + field + 'must \
+be an integer greater than ' + min + '.';</code></pre>
+					</section>
+					<section>
+						<h3>ECMAScript 6</h3>
+						<pre><code class="hljs js">const a = `Field ${field} must
+ be an integer greater than ${min}.`</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<h1>Destrukturalizace</h1>
+				</section>
+				<section>
+					<h2>Objekty</h2>
+					<section>
+						<pre><code class="hljs js">var person = {
+	name: 'John Smith',
+	age: 20,
+	contacts: {
+		twitter: 'funnyjohny'
+	}
+}</code></pre>
+					</section>
+
+					<section>
+						<p>ES &lt;6:</p>
+						<pre><code class="hljs js">var name = person.name;
+var age = person.age || 18; // default
+var twitter = person.contacts.twitter; // nested
+</code></pre>
+						<div class="fragment">
+							<p>ES 6:</p>
+							<pre><code class="hljs js">const { name, age = 18, contacts: { twitter } } = person;
+</code></pre>
+						</div>
+					</section>
+				</section>
+				<section>
+					<h2>Pole</h2>
+					<p>ES &lt;6:</p>
+					<pre><code class="hljs js">var fst = pair[0];
+var snd = pair[1] || '';</code></pre>
+					<div class="fragment">
+						<p>ES 6:</p>
+						<pre><code class="hljs js">const [fst, snd = ''] = pair;</code></pre>
+					</div>
+				</section>
+				<section>
+					<h2>Argumenty</h2>
+						<pre><code class="hljs js">function hello({ name, surname = 'Zeman' }) {
+	alert(`Hello, ${name} ${surname}!`);
+}
+hello({ name: 'Miloš' });</code></pre>
+				</section>
+				<section>
+					<h1>...Rest</h1>
+				</section>
+				<section>
+					<h2>Objekty</h2>
+					<pre><code class="hljs js">const person = { name: 'Miloš', surname: 'Zeman', profession: 'president' };
+const {
+	name,
+	surname,
+	...other,
+} = person;
+
+console.log(other); // { profession: 'president' }
+</code></pre>
+					</section>
+					<section>
+						<h2>Argumenty</h2>
+						<pre><code class="hljs js">function tailArgs(_, ...other) {
+	return other;
+}
+
+tailArgs(1, 2, 3); // [2, 3]
+</code></pre>
+				</section>
+				<section>
+					<h1>...Spread</h1>
+				</section>
+				<section>
+					<h2>Z pole do comma-separated</h2>
+					<pre><code class="hljs js">const arr = ['Hello', 'world', '!'];
+console.log(...arr) // "Hello world  !";
+</code></pre>
+
+				</section>
+				<section>
+					<h2>Z pole do comma-separated</h2>
+					<pre><code class="hljs js">function sumAll(a, ...other) {
+	return (typeof a === 'undefined') ?
+		0 :
+		a + sumAll(...other); // <--
+	}
+}
+sumAll(1, 2, 3); // 6</code></pre>
+				</section>
+				<section>
+					<h1>Objektové literály</h1>
+				</section>
+				<section>
+					<p>ES &lt;6:</p>
+					<pre><code class="hljs js">var name = 'Miloš';
+var person = {
+	name: name,
+	getName: function() {
+		return this.name;
+	},
+};</code></pre>
+					<div class="fragment">
+						<p>ES 6:</p>
+							<pre><code class="hljs js">const name = 'Miloš';
+const person = {
+	name, 		// <--
+	getName() { 	// <--
+		return this.name;
+	}
+};</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h1>class</h1>
+				</section>
+				<section>
+					<h2>Prototype (&lt; ES6)</h2>
+					<section>
+						<h3>Třída s konstruktorem</h3>
+						<pre><code class="hljs js">function Car(brand, type, color) {
+	this.brand = brand;
+	this.type = type;
+	this.color = color;
+}
+
+Car.prototype.getReport = function() {
+	return 'Brand:'  + this.brand + ',\n' +
+		'Type: ' + this.type + ',\n' +
+		'Color: ' + this.color;
+}
+
+var myCar = new Car('Renault', 'Twingo', 'blue');
+
+myCar.getReport(); // Brand: Renault, ...</code></pre>
+					</section>
+					<section>
+						<h3>Dědičnost</h3>
+						<pre><code class="hljs js">function Truck(brand, type, color, weight) {
+	Car.call(this, brand, type, color); // super call...
+	this.weight = weight; // new property
+}
+
+// Extending...
+Truck.prototype = Object.create(Car.prototype);
+Truck.construtor = Truck;
+
+Truck.prototype.getReport = function() {
+	return Car.prototype.getReport.call(this) +
+		',\nWeight: ' + this.weight;
+}
+
+var myTruck = new Truck(
+	'Renault',
+	'T 440',
+	'white',
+	'Pretty heavy'
+);
+myTruck.getReport() // ..., weight: Pretty heavy</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<h2>class (ES6)</h2>
+					<section>
+						<pre><code class="hljs js">class Car {
+	constructor(brand, type, color) {
+		this.brand = brand;
+		this.type = type;
+		this.color = color;
+	}
+
+	getReport() {
+		 return `Brand: ${this.brand},
+Type: ${this.type},
+Color: ${this.color}`;
+	}
+}
+
+const myCar = new Car('Renault', 'Twingo', 'blue');
+myCar.getReport(); // Brand: Renault, ...</code></pre>
+					</section>
+					<section>
+						<pre><code class="hljs js">class Truck extends Car {
+	constructor(brand, type, color, weight) {
+		super(brand, type, color);
+		this.weight = weight;
+	}
+
+	getReport() {
+		return `${super.getReport()},
+Weight: ${this.weight}`;
+	}
+}
+
+const myTruck = new Truck(
+	'Renault',
+	'T 440',
+	'white',
+	'Pretty heavy'
+);
+myTruck.getReport() // ..., weight: Pretty heavy</code></pre>
+					</section>
+					<section>
+						<h2>Nová klíčová slova</h2>
+						<ul>
+							<li><code>class</code></li>
+							<li><code>constructor</code></li>
+							<li><code>extends</code></li>
+							<li><code>super</code></li>
+						</ul>
+						<p>Jen syntax sugar! Na pozadí stále <code>prototype</code></p>
+					</section>
+				</section>
+				<section>
+					<h1>Arrow funkce</h1>
+				</section>
+				<section>
+					<h2>Arrow funkce</h2>
+					<h3>Syntax</h3>
+					<p>ES &lt;6:</p>
+					<pre><code class="hljs js">var getName = function (person) {
+	return person.name;
+}</code></pre>
+					<div class="fragment">
+						<p>ES 6:</p>
+						<pre><code class="hljs js">const getName = (person) => {
+	return person.name;
+}</code></pre>
+					</div>
+					<div class="fragment">
+						<pre><code class="hljs js">const getName = (person) => person.name;</code></pre>
+					</div>
+
+					<div class="fragment">
+						<pre><code class="hljs js">const getName = ({ name }) => name;</code></pre>
+					</div>
+				</section>
+				<section>
+					<h2>Arrow funkce</h2>
+					<h3>Vracení literálu</h3>
+					<pre><code class="hljs js">const personFactory = (name, surname) => { name, surname };</code></pre>
+					<div class="fragment">
+						<pre><code class="hljs js">const personFactory = (name, surname) => ({ name, surname });</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h2>Arrow fukce</h2>
+					<h3>Kontext</h3>
+					<section>
+						<pre><code class="hljs js">const Person = function (name) {
+	this.name = name;
+}
+new Person('Miloš').name; // Miloš</code></pre>
+					</section>
+					<section>
+						<pre><code class="hljs js">const Person = (name) => {
+	this.name = name;
+}
+new Person('Miloš').name; // TypeError: not constructor
+Person('Miloš').name; // TypeError: Cannot read property 'name' of undefined
+window.name; // Miloš
+             // `this` je context `window`</code></pre>
+					</section>
+
+				</section>
+				<section>
+					<h2>Arrow funkce</h2>
+					<h3>Shrnutí</h3>
+					<ul>
+						<li>Jako anonymní funkce</li>
+						<li>Umožňuje zkrácený zápis</li>
+						<ul>
+							<li>Vracení literálu je možné přes expression</li>
+						</ul>
+						<li>Nevytváří vlastní kontext</li>
+					</ul>
+				</section>
+
+				<section>
+					<ul>
+						<li><a href="https://babeljs.io/docs/learn-es2015/">Babel - Learn ES2015</a></li>
+					</ul>
+				</section>
+				<section>
+					<h2>Úkoly 01 - 03</h2>
+				</section>
+				<section>
+					<h2>Moduly</h2>
+					<section>
+						<pre><code class="hljs js">// hello.js
+export const hello = (x) => `Hello ${x}!`;
+export const helloWorld = () => hello('world');
+export const helloLundegaard = () => hello('Lundegaard');
+
+export default hello;</code></pre>
+					</section>
+					<section>
+						<pre><code class="hljs js">import fn, { helloWorld } from './hello';
+fn('to all');
+helloWorld();</code></pre>
+					</section>
+					<section>
+						<pre><code class="hljs js">import fn as myFn, * as fromHello from './hello';
+myFn('to all');
+fromHello.helloLundegaard();</code></pre>
+					</section>
+				</section>
+				<section>
+					<h2>Svatá trojice <br /> <code>map, filter, reduce</code></h2>
+					<p>Ukázka č.1</p>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>

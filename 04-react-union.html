@@ -1,0 +1,421 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>React Union</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/moon.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/github.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>React Union</h1>
+                    <p>Tomáš Konrády</p>
+                </section>
+                <section>
+                	<ul>
+                		<li>Úvod</li>
+                        <li>Technologie</li>
+                        <li>Build</li>
+                        <li>Demo</li>
+                	</ul>
+                </section>
+                <section>
+                    <h2>React Union</h2>
+                    <p>React-Redux Boilerplate navržený pro prostředí CMS.</p>
+                </section>
+                <section>
+                    <h2>SPA</h2>
+                    <section>
+                        <img src="images/singlepage.jpg" alt="Single Page" />
+                    </section>
+                    <section>
+                        <ul>
+                            <li>Render logika na clientovi</li>
+                            <li>Routing/Browser history</li>
+                            <li>Možnost optimalizace zdrojů &quot;per URL&quot;</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <pre><code class="html hljs">&lt;html&gt;
+    &lt;body&gt;
+        &lt;div id=&quot;root&quot;&gt;&lt;/div&gt;
+        &lt;script src=&quot;assets/bundle.js&quot;&gt;&lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </section>
+                    <section>
+                        <pre><code class="js hljs">const App = ({ children }) => (
+    &lt;Layout&gt;
+        &lt;Header /&gt;
+        { children }
+        &lt;Footer /&gt;
+    &lt;/Layout&gt;
+);
+
+const Root = () => (
+  &lt;Router history={browserHistory}&gt;
+    &lt;Route path=&quot;/&quot; component={App}&gt;
+      &lt;Route path=&quot;about&quot; component={About}/&gt;
+      &lt;Route path=&quot;users&quot; component={Users}&gt;
+        &lt;Route path=&quot;/user/:userId&quot; component={User}/&gt;
+      &lt;/Route&gt;
+      &lt;Route path=&quot;*&quot; component={NoMatch}/&gt;
+    &lt;/Route&gt;
+  &lt;/Router&gt;
+);
+
+ReactDOM.render(&lt;Root /&gt;, document.getElementById('root'));</code></pre>
+                    </section>
+                    <section>
+                        <img src="images/singlepage-experience.gif" height="400"  alt="Developer's experience" />
+                    </section>
+                    <section>
+                        <img src="images/singlepage-redux-devtools.gif" height="400" alt="Developer's experience" />
+                    </section>
+                </section>
+                <section>
+                    <h2>CMS: Liferay</h2>
+                    <section>
+                        <img src="images/liferay.png" alt="Single Page" />
+                    </section>
+                    <section>
+                        <ul>
+                            <li>Routing/Browser history - browser rerender</li>
+                            <li>Načítání a optimalizace zdrojů - CMS</li>
+                            <li>Uživatel uzpůsobuje vzhled/obsah stránky</li>
+                        </ul>
+                    </section>
+                </section>
+                <section>
+                    <h2>Cíle</h2>
+                    <ul>
+                        <li>Přinést výhody moderního FE vývoje do CMS</li>
+                        <li>Optimalizovat zdroje</li>
+                        <li>Flexibilní a modulární achitektura</li>
+                    </ul>
+                </section>
+                <section>
+                    <h1>Princip</h1>
+                </section>
+                <section>
+                    <h2>Rozdělení do sub-aplikací</h2>
+                    <section>
+                        <img src="images/split.png" alt="Screenshot před rozdělením" height="400" />
+                    </section>
+                    <section>
+                        <img src="images/split2.png" alt="Screenshot po rozdělení" height="400" />
+                    </section>
+                </section>
+                <section>
+                    <h2>DOM Značka</h2>
+                    <pre><code class="hljs html">&lt;div id=&quot;eventsRoot&quot;&gt;&lt;/div&gt;
+&lt;script data-union-app=&quot;&quot; type=&quot;application/json&quot;&gt;
+{
+    &quot;name&quot;: &quot;events&quot;,
+    &quot;namespace&quot;: &quot;uniqueKey&quot;,
+    &quot;container&quot;: &quot;eventsRoot&quot;,
+    &quot;initialData&quot;: { &quot;myData&quot;: &quot;...&quot; }
+}
+&lt;/script&gt;</code></pre>
+                </section>
+                <section>
+                    <h2>Route</h2>
+                    <pre><code class="hljs js">// modules/lundegaard/Events/route.js
+export default {
+    path: 'events',
+    getComponents(store, namespaces, callback) {
+        require.ensure( // CommonJS dynamic import
+            [],
+            (require) => {
+                // returning root component
+                callback(require('./EventsApp').default);
+            },
+            'events' // chunk name
+        );
+    },
+};</code></pre>
+                </section>
+                <section>
+                    <h2>Entry modul</h2>
+                    <pre><code class="hljs js">// eLiskaTheme/index.js
+
+import { boot } from 'index';
+import { default as EventsRoute } from '../modules/lundegaard/Events/route';
+import { default as CalendarRoute } from '../modules/cgi/Calendar/route';
+
+boot([
+    EventsRoute,
+    CalendarRoute,
+]);</code></pre>
+                </section>
+                <section>
+                    <h1>Redux</h1>
+                </section>
+                <section>
+                    <h2>Proč Redux?</h2>
+                    <ul>
+                        <li>Sdílení dat mezi sub-aplikacemi</li>
+                        <li>Single store</li>
+                        <li>Time traveling</li>
+                        <li>Logging</li>
+                        <li>...</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Asynchronní Inject Reduceru</h2>
+
+                    <section>
+                        <pre><code class="hljs js">// modules/cgi/Events/route.js
+
+import { injectAsyncReducers } from 'store/configureStore';
+
+export default {
+    path: 'events',
+    getComponents(store, namespaces, callback) {
+        require.ensure( // CommonJS dynamic import
+            [],
+            (require) => {
+                injectAsyncReducers(
+                    store,
+                    [
+                        // root reducer of subapp
+                        require('./reducers').default,
+                        // common reducer
+                        require('reducers/form').default,
+                    ]
+                );
+
+                callback(require('./EventsApp').default);
+            },
+            'events' // chunk name
+        );
+    },
+};</code></pre>
+                    </section>
+                    <section>
+                        <pre><code class="hljs js">// modules/cgi/Events/reducers/index.js
+
+import ui from './ui';
+import entities from './entities';
+
+const id = 'events';
+const reducer = combineReducers({
+    ui,
+    entities
+});
+
+export default () => ({
+    id,
+    reducer,
+});
+
+// ...
+console.log(store.getState());
+/*
+{
+    events: {
+        ui: ...
+        entities: ...
+    },
+    otherApp: { .... }
+}
+*/
+</code></pre>
+                    </section>
+                </section>
+                <section>
+                    <h2>Ukázka</h2>
+                    <p>Tabulka událostí</p>
+                    <ol>
+                        <li>Struktura projektu - workshop - table, common</li>
+                        <li>Tabulka - vytvořit route a React komponentu</li>
+                        <li>Entry modul - routes, index, HMR, package.json</li>
+                        <li>modules.config.js</li>
+                        <li>/public</li>
+                        <li>Synchronní získání dat - common - actions/reducers</li>
+                        <li>Asynchronní získání dat - Thunks</li>
+                        <li><a href="https://github.com/agraboso/redux-api-middleware" target="_blank">Redux API middleware</a></li>
+                        <li><a href="https://github.com/erikras/redux-form" target="_blank">Redux-Form</a> - sorting</li>
+                    </ol>
+                </section>
+                <section>
+                    <h2>Více instancí</h2>
+                    <p>Rozdělení UI stavu podle namespaces</p>
+                    <section>
+                        <pre><code class="hljs js">{
+    eventsTable: {
+        ui: {
+            byId: [...]
+            sort: { ... }
+        }
+    },
+    events: {
+        1: {...},
+        2: {...},
+    }
+}</code></pre>
+                    </section>
+                    <section>
+                        <pre><code class="hljs js">{
+    eventsTable: {
+        namespaceA: { ui: ... },
+        namespaceB: { ui: ... },
+        namespaceC: { ui: ... },
+    },
+    events: {
+        1: {...},
+        2: {...},
+    }
+}</code></pre>
+                    </section>
+                    <section>
+                        <p>Je třeba zohlednit namespace ve:</p>
+                        <ol>
+                            <li>Store</li>
+                            <li>Akce</li>
+                            <li>Reducer</li>
+                        </ol>
+                    </section>
+                </section>
+                <section>
+                    <strong><code>core/ReactRedux</code></strong>
+                    <section>
+                        <p><code>combineReducersWithNamespaces</code></p>
+                        <ul>
+                            <li>Multiplikuje jeden reducer podle <code>namespaces</code></li>
+                            <li>Zaručí, aby reagoval správný reducer podle <code>meta.namespace</code> v akci</li>
+                        </ul>
+                        <pre><code class="hljs js">combineReducersWithNamespaces(namespaces, {
+    ui,
+});
+console.log(store.getState());
+/*
+{
+    namespaceA: { ui: ... },
+    namespaceB: { ui: ... }
+    namespaceC: { ui: ... }
+}
+*/
+</code></pre>
+                    </section>
+                    <section>
+                        <p>Tvorba reduceru:</p>
+                        <pre><code class="hljs js">// route.js
+export default {
+    path: 'some-route',
+    getComponents(store, namespaces, cb) {
+        require.ensure(
+            [],
+            (require) => {
+                injectAsyncReducers(
+                    store,
+                    [
+                        // function!
+                        require('./reducers').default(namespaces)
+                    ]
+                );
+
+                cb(require('./SomeComponent').default);
+            },
+            'some-route'
+        );
+    };
+}
+
+// reducers/index.js
+export default (namespaces) => ({
+    id: 'someApp',
+    reducer: combineReducersWithNamespaces(namespaces, reducer),
+});</code></pre>
+                    </section>
+                     <section>
+                        <p><code>selector</code></pre>
+</code></p>
+                        <pre><code class="hljs js">export const getSort = (namespace) => (state) =>
+    fromUi.getSort(state[id].ui[namespace]);
+</code></pre>
+                    </section>
+                    <section>
+                        <p>Přidání <code>meta.namespace</code> do akce:</p>
+                        <pre><code class="hljs js">export cont sortEvents = (namespace, sort) => ({
+    type: ActionTypes.SORT_EVENTS,
+    meta: { namespace }, // !!!
+    payload: sort,
+})</code></pre>
+                    </section>
+                    <section>
+                        <p><code>Provider</code></p>
+                        <ul>
+                            <li>Do kontextu přidává informace z DOM značky</li>
+                            <li><code>src/containers/ApplicationRoot</code></li>
+                        </ul>
+                        <pre><code class="hljs html">&lt;Provider
+    store={}
+    namespace={}
+    initialData={}
+/&gt;</code></pre>
+                    </section>
+                    <section>
+                        <p><code>namespacedConnect</code></pre>
+</code></p>
+                        <ul>
+                            <li>Předává informace z DOM značky do <code>props</code></li>
+                        </ul>
+                        <pre><code class="hljs js">const MyComponent = ({ namespace, initialData }) => {
+    // ...
+};
+
+namespacedConnect()(MyComponent);</code></pre>
+                    </section>
+
+                </section>
+                <section>
+                    <h2>DEV Stack</h2>
+                    <ul>
+                        <li>Možnost vývoje i bez Liferay</li>
+                        <li>Test</li>
+                        <li>Codestyle</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Ukázka</h2>
+                    <p>Demo: spuštění na Liferay</p>
+                </section>
+          </div>
+        </div>
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+                ]
+            });
+        </script>
+    </body>
+</html>

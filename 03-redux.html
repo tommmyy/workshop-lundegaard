@@ -1,0 +1,376 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Redux</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/moon.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/github.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>Redux</h1>
+                    <p>Tomáš Konrády</p>
+                </section>
+                <section>
+                	<ul>
+                		<li>3 principy Reduxu</li>
+                        <li>React-redux</li>
+                        <li>Middleware</li>
+                	</ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>standardizované akce</li>
+                            <li>middleware - thunks</li>
+                            <li>middleware - API</li>
+                        </ul>
+                    </aside>
+                </section>
+                <section>
+                    <h1>3 principy</h1>
+                </section>
+                <section>
+                    <h2>1. Jediný zdroj pravdy</h2>
+
+                    <section>
+                        <p>Stav celé aplikace je uložen na jednom místě - <strong><code>store</code></strong></p>
+                    </section>
+                    <section>
+                        <p><code>Jednoduchý stav</code></p>
+                        <pre><code class="hljs js">console.log(store.getState())
+// prints:
+4</code></pre>
+                    </section>
+                    <section>
+                        <p><code>Komplexnější normalizovaný stav</code></p>
+                        <pre><code class="hljs js">console.log(store.getState())
+// prints:
+{
+    ui: {
+        byName: {
+            pagination: {
+                page: 2,
+                totalItems: 432,
+                ids: [34, 876, 7, 90],
+                isFetching: false
+            }
+        }
+    },
+    entities: {
+        users: {
+            34: { id: 34, name: 'Jan', surname: 'Novák', address: 2 },
+            867: { /* ... */ },
+            7: { /* ... */ },
+            90: { /* ... */ }
+        },
+        addresses: {
+            2: { town: 'Praha', street: 'all of them', zip: 'xxxxx' },
+            // ...
+        }
+    }
+}</code></pre>
+                    </section>
+                </section>
+                <section>
+                    <h2>2. Stav je jen pro čtení</h2>
+                    <section>
+                        <p>Stav lze modifikovat jen pomocí <strong><code>Akcí</code></strong></p>
+                    </section>
+                    <section>
+                        <pre><code class="js hljs">{
+    type: 'INCREASE'
+}</code></pre>
+                    </section>
+                    <section>
+                        <pre><code class="js hljs">{
+    type: 'FETCH_USERS_SUCCESS',
+    meta: {
+        pagination: {
+            totalItems: 333,
+            page: 4
+        },
+        jwt: '...'
+    },
+    payload: {
+        result: [2, 55, 445],
+        entities: { /* ... */ }
+    }
+}</code></pre>
+                    </section>
+                </section>
+                <section>
+                    <h2>3. Modifikace stavu prováděny skrze pure funkce</h2>
+                    <section>
+                        <p>Jak se mění stav v závislosi na akci popisuje pure funkce - <strong><code>reducer</code></strong>.</p>
+                    </section>
+                    <section>
+                        <pre><code class="hljs js">function users(state = [], action) {
+  switch (action.type) {
+    case 'ADD_USER':
+      return [ // always return new object
+        ...state,
+        {
+         name: action.payload.name,
+         surname: action.payload.surname,
+        }
+      ]
+    case 'REMOVE_USER':
+      return state.filter((_, index) => index !== action.payload.index)
+    default: // In default always return input state
+      return state
+  }
+}</code></pre>
+                    </section>
+                </section>
+                <section>
+                    <h2>Store</h2>
+                    <p>Alias "single-source of truth" :)</p>
+                    <pre><code class="js hljs">import { createStore } from 'redux';
+const store = createStore(reducer, initialState, middlewares);
+
+// Methods:
+store.dispatch(action);
+store.subscribe(listener);
+store.getState();</code></pre>
+                </section>
+                <section>
+                    <h2>Ukázka č.1</h2>
+                    <p>Čítač</p>
+                    <aside class="notes">
+                        <ul>
+                            <li>čítač v reduxu</li>
+                            <li>přidání Reactu</li>
+                        </ul>
+                    </aside>
+                </section>
+                <section>
+                    <h1>Organizace stavu</h1>
+                </section>
+                <section>
+                    <p><code>combineReducers</code></p>
+                    <pre><code class="js hljs">import { combineReducers } from 'redux';
+const always1 = (state = 1, action) => state;
+const always2 = (state = 2, action) => state;
+const always3 = (state = 3, action) => state;
+
+const rootReducer = combineReducers({
+    always1,
+    always2,
+    nested: combineReducers({
+        always3,
+    })
+});
+
+// ...
+
+console.log(store.getState());
+// { always1: 1, always2: 2, nested: { always3: 3 } }
+</code></pre>
+                </section>
+                <section>
+                    <p>selectors</p>
+                    <pre><code class="js hljs">const rootReducer = combineReducers({
+    always1,
+    always2,
+    nested: combineReducers({
+        always3,
+    })
+});
+
+export default rootReducer;
+
+// selectors
+export const getAlways1 = (state) => state.always1;
+export const getAlways2 = (state) => state.always2;
+export const getAlways3 = (state) => state.nested.always3;
+</code></pre>
+                </section>
+                <section>
+                    <p>selectors</p>
+                    <pre><code class="js hljs">// nested.js
+export default combineReducers({ always3 });
+export const getAlways3 = (state) => state.always3;
+
+// rootReducer.js
+import nested, * as fromNested from './nested';
+const rootReducer = combineReducers({
+    always1,
+    always2,
+    nested,
+});
+
+export default rootReducer;
+export const getAlways1 = (state) => state.always1;
+export const getAlways2 = (state) => state.always2;
+export const getAlways3 = (state) => fromNested.getAlways3(state); // <--
+</code></pre>
+                </section>
+                <section>
+                    <p><code>combineReducers</code></p>
+                    <ul>
+                        <li>Utility funkce</li>
+                        <li>Umožňuje kompozici reducerů</li>
+                        <li>Pro čtení ze stavu používáme selectory</li>
+                        <li>defaultní export je vždy reducer, pojmenované jsou selektory</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Prezentační komponenta</h2>
+                    <pre><code class="js hljs">const UsersList = ({
+    className,
+    heading,
+    users,
+    children,
+    ...rest
+}) => (
+    &lt;Section
+        className={cx()}
+        heading={heding}
+        {...rest}
+    &gt;
+        {users.length ?
+            &lt;ul&gt;
+                { users.map(
+                    ({ fullName }) =&gt; &lt;li&gt;{fullname}&lt;/li&gt;
+                }
+            &lt;/ul&gt;
+        }
+        {children}
+    &lt;/Section&gt;
+)</code></pre>
+                </section>
+<section>
+                    <h2>Container</h2>
+                    <pre><code class="js hljs">class Users extends Component {
+    componentWillMount() {
+        this.fetchData();
+    }
+
+    fetchData() {
+        fetch(`${endpoint}/api/users`)
+                .then(({ users }) => this.setState({ users }))
+    }
+
+    handleSubmit(e, data) {
+        fetch(`${endpoint}/api/users`, { method: 'POST', /* ... */ })
+            .then(() => this.fetchData()}))
+    }
+
+    // ...
+
+    render() {
+        return (
+            &lt;div&gt;
+                &lt;UserAddForm onSubmit={this.handleSubmit} /&gt;
+                &lt;UsersList users={this.state.users} /&gt;
+            &lt;/div&gt;
+        );
+    }
+}</code></pre>
+                </section>
+                <section>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th>Presentational</th>
+                            <th>Container</th>
+                        </tr>
+                        <tr>
+                            <th>Zaměření</th>
+                            <td>Jak data zobrazit</td>
+                            <td>Kde data získat</td>
+                        </tr>
+                        <tr>
+                            <th>CSS/DOM</th>
+                            <td>vlastní/vlastní markup</td>
+                            <td>Nemá/jen &lt;div /&gt;</td>
+                        </tr>
+                        <tr>
+                            <th>Akce</th>
+                            <td>Volají callbacky z <code>props</code></td>
+                            <td>Dispatch akcí</td>
+                        </tr>
+                        <tr>
+                            <th>Stav</th>
+                            <td>stateless</td>
+                            <td>stateful</td>
+                        </tr>
+                        <tr>
+                            <th>Závislost na Redux (atd.)</th>
+                            <td>ne</td>
+                            <td>ano</td>
+                        </tr>
+                    </table>
+                </section>
+                <section>
+                    <p><a href="https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0#.k5hzhurfo">Dan Abramov - Smart and Dumb components</a></p>
+                </section>
+                <section>
+                    <h2>React Redux</h2>
+                    <p>Samostatná knihovna pro integraci Reduxu do Reactu</p>
+
+                    <pre><code class="hljs js">&lt;Provider&gt;
+connect(mapStateToProps, mapDisptachToProps, mapProps)
+</code></pre>
+
+
+                </section>
+                <section>
+                    <h2>Ukázka č.2</h2>
+                    <p>Integrace knihovny react-redux</p>
+                </section>
+                <section>
+                    <h1>Úkol č.1</h1>
+                    <aside class="notes">_redux03Result</aside>
+                </section>
+                <section>
+                    <h1>Middleware</h1>
+                </section>
+                <section>
+                    <ul>
+                        <li>Rozšíření v bodě mezi <strong>vyvoláním akce</strong> a <strong>spuštění reduceru</strong>.</li>
+                        <li class="fragment">Logging, Asynchronní akce, Crash Reporting, práce s API, ...</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Ukázka č.3</h2>
+                    <p>Logger middleware</p>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+                ]
+            });
+        </script>
+    </body>
+</html>
